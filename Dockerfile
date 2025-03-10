@@ -1,9 +1,14 @@
 FROM node:20-alpine AS builder
 
+ARG BOXSET_ARG=local
+ARG APPSET_ARG=widesoft
+ARG REGION_ARG=us-east-1
+ARG SERVICE_ARG=evolution-whatsapp-widesoft-local
+
 RUN apk update && \
     apk add git ffmpeg wget curl bash openssl
 
-LABEL version="2.2.3" description="Api to control whatsapp features through http requests." 
+LABEL version="2.2.3" description="Api to control whatsapp features through http requests."
 LABEL maintainer="Davidson Gomes" git="https://github.com/DavidsonGomes"
 LABEL contact="contato@atendai.com"
 
@@ -52,6 +57,10 @@ COPY --from=builder /evolution/runWithProvider.js ./runWithProvider.js
 COPY --from=builder /evolution/tsup.config.ts ./tsup.config.ts
 
 ENV DOCKER_ENV=true
+ENV BOXSET=${BOXSET_ARG}
+ENV APPSET=${APPSET_ARG}
+ENV REGION=${REGION_ARG}
+ENV SERVICE=${SERVICE_ARG}
 
 EXPOSE 8080
 
