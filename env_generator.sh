@@ -117,13 +117,6 @@ create_env_file() {
 
     # Move the temporary file to the target location
     mv "$temp_env_file" "$env_file_path"
-
-    # Set permissions for the .env file
-    chmod 600 "$env_file_path"
-    if [ $? -ne 0 ]; then
-        echo "Failed to set permissions for .env file."
-        exit 1
-    fi
     # Check if the .env file is readable
     if [ ! -r "$env_file_path" ]; then
         echo "The .env file is not readable."
