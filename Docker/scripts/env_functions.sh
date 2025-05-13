@@ -1,3 +1,5 @@
+set -x
+
 export_env_vars() {
     if [ -f .env ]; then
         while IFS='=' read -r key value; do
