@@ -36,6 +36,12 @@ RUN npm run build
 
 FROM node:20-alpine AS final
 
+ENV DOCKER_ENV=true
+ENV BOXSET=${BOXSET_ARG}
+ENV APPSET=${APPSET_ARG}
+ENV REGION=${REGION_ARG}
+ENV SERVICE=${SERVICE_ARG}
+
 RUN apk update && \
     apk add tzdata ffmpeg bash openssl
 
@@ -55,12 +61,6 @@ COPY --from=builder /evolution/.env ./.env
 COPY --from=builder /evolution/Docker ./Docker
 COPY --from=builder /evolution/runWithProvider.js ./runWithProvider.js
 COPY --from=builder /evolution/tsup.config.ts ./tsup.config.ts
-
-ENV DOCKER_ENV=true
-ENV BOXSET=${BOXSET_ARG}
-ENV APPSET=${APPSET_ARG}
-ENV REGION=${REGION_ARG}
-ENV SERVICE=${SERVICE_ARG}
 
 EXPOSE 8080
 

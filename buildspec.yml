@@ -12,7 +12,7 @@ phases:
     commands:
       - echo Starting build fase
       - echo Generating env file...
-      - aws ssm get-parameters --name /$BOXSET/$APPSET/whatsapp/credentials --with-decryption --region $REGION | jq .Parameters | jq .[].Value | tr -d '"' | sed 's/\\n/\n/g' > .env
+      - bash env_generator.sh
       - docker build . --build-arg BOXSET_ARG=$BOXSET --build-arg APPSET_ARG=$APPSET --build-arg REGION_ARG=$REGION --build-arg SERVICE_ARG=$SERVICE -t $IMAGE_REPO_NAME
       - echo "Build completed on $(date)"
       - echo Moving to post build stage
