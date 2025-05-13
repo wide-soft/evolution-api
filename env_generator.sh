@@ -165,7 +165,7 @@ if ! echo "$SECRET_JSON" | jq empty; then
     exit 1
 fi
 # Create the .env file
-ENV_FILE_PATH="$BASEDIR/.env"
+ENV_FILE_PATH="$BASEDIR/.env.example"
 if [ -z "$ENV_FILE_PATH" ]; then
     echo "ENV_FILE_PATH is not set. Please set it to proceed."
     exit 1
