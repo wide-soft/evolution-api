@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -x
+
 source ./Docker/scripts/env_functions.sh
 
 if [ "$DOCKER_ENV" != "true" ]; then
