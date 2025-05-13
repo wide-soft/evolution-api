@@ -14,7 +14,7 @@ export_env_vars() {
         done < .env
 
         # DEBUG
-        cat "FUNCTIONS: $DATABASE_PROVIDER"
+        echo "FUNCTIONS: $DATABASE_PROVIDER"
     else
         echo ".env file not found"
         exit 1
