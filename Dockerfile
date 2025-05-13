@@ -5,6 +5,12 @@ ARG APPSET_ARG=widesoft
 ARG REGION_ARG=us-east-1
 ARG SERVICE_ARG=evolution-whatsapp-widesoft-local
 
+ENV DOCKER_ENV=true
+ENV BOXSET=${BOXSET_ARG}
+ENV APPSET=${APPSET_ARG}
+ENV REGION=${REGION_ARG}
+ENV SERVICE=${SERVICE_ARG}
+
 RUN apk update && \
     apk add git ffmpeg wget curl bash openssl
 
@@ -35,12 +41,6 @@ RUN ./Docker/scripts/generate_database.sh
 RUN npm run build
 
 FROM node:20-alpine AS final
-
-ENV DOCKER_ENV=true
-ENV BOXSET=${BOXSET_ARG}
-ENV APPSET=${APPSET_ARG}
-ENV REGION=${REGION_ARG}
-ENV SERVICE=${SERVICE_ARG}
 
 RUN apk update && \
     apk add tzdata ffmpeg bash openssl
