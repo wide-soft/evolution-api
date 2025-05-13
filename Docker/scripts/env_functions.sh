@@ -1,5 +1,4 @@
-set -x
-
+# This script is used to load environment variables from a .env file
 export_env_vars() {
     if [ -f .env ]; then
         while IFS='=' read -r key value; do
