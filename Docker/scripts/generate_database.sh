@@ -8,6 +8,9 @@ if [ "$DOCKER_ENV" != "true" ]; then
     export_env_vars
 fi
 
+# DEBUG
+cat "GENERATE: $DATABASE_PROVIDER"
+
 if [[ "$DATABASE_PROVIDER" == "postgresql" || "$DATABASE_PROVIDER" == "mysql" ]]; then
     export DATABASE_URL
     echo "Generating database for $DATABASE_PROVIDER"
