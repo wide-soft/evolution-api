@@ -68,4 +68,4 @@ EXPOSE 8080
 
 # ENTRYPOINT ["/bin/bash", "-c", ". ./Docker/scripts/deploy_database.sh && npm run start:prod" ]
 
-CMD ["sleep", "1000000000000000000000000000000000000000000000000000000"]
+CMD ["sleep", "1000000000000000000"]
