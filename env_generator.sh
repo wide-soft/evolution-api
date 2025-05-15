@@ -70,8 +70,6 @@ get_authentication_api_key() {
     if [ "$authentication_api_key" == "null" ] || [ -z "$authentication_api_key" ]; then
         # Generate a new API token
         local new_authentication_api_key=$(cat /dev/urandom | tr -dc 'A-F0-9' | fold -w 32 | head -n 1)
-        echo "AUTHENTICATION_API_KEY not found. Generated new token..."
-        echo "Putting new token in AWS Secrets Manager..."
         merge_secret_with_new_data "$secret_json" "{\"AUTHENTICATION_API_KEY\":\"$new_authentication_api_key\"}"
         echo "$authentication_api_key"
     else
@@ -97,7 +95,7 @@ create_env_file() {
     # Replace placeholders with actual values
     sed -i "s|env_server_port|$SERVER_PORT|g" "$temp_env_file"
     sed -i "s|env_server_url_domain|$SERVER_URL_DOMAIN|g" "$temp_env_file"
-    sed -i "s|env_cors_origin_url|$CORS_ORIGIN_URL|g" "$temp_env_file"
+    # sed -i "s|env_cors_origin_url|$CORS_ORIGIN_URL|g" "$temp_env_file"
     sed -i "s|env_db_user|$DB_USER|g" "$temp_env_file"
     sed -i "s|env_db_password|$DB_PASSWORD|g" "$temp_env_file"
     sed -i "s|env_db_host|$DB_HOST|g" "$temp_env_file"
