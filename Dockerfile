@@ -45,9 +45,15 @@ RUN npm run build
 FROM node:20-alpine AS final
 
 RUN apk update && \
-    apk add tzdata ffmpeg bash openssl
+    apk add tzdata ffmpeg bash openssl supervisor
 
 ENV TZ=America/Sao_Paulo
+
+RUN mkdir -p /etc/supervisor/conf.d
+COPY supervisor/supervisord.conf /etc/supervisor/supervisord.conf
+COPY supervisor/conf.d/evolution-api.conf /etc/supervisor/conf.d/evolution-api.conf
+# COPY supervisor/conf.d/sleep.conf /etc/supervisor/conf.d/sleep.conf
+RUN chmod 0644 /etc/supervisor/conf.d/*
 
 WORKDIR /evolution
 
@@ -66,4 +72,6 @@ COPY --from=builder /evolution/tsup.config.ts ./tsup.config.ts
 
 EXPOSE 8080
 
-ENTRYPOINT ["/bin/bash", "-c", ". ./Docker/scripts/deploy_database.sh && npm run start:prod" ]
+# ENTRYPOINT ["/bin/bash", "-c", ". ./Docker/scripts/deploy_database.sh && npm run start:prod" ]
+
+CMD ["supervisord", "-c", "/etc/supervisor/supervisord.conf"]

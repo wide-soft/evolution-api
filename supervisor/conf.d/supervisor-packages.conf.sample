@@ -1,0 +1,20 @@
+[program:freeradius]
+command=/usr/sbin/freeradius -f -l stdout
+autorestart=true
+stdout_logfile=/dev/fd/1
+stdout_logfile_maxbytes=0
+redirect_stderr=true
+
+[program:state_checker]
+command=/usr/bin/python3 /etc/freeradius/scripts/state_python_api/state_updater.py
+autorestart=false
+stdout_logfile=/dev/fd/1
+stdout_logfile_maxbytes=0
+redirect_stderr=true
+
+[program:python_web_server]
+command=/usr/bin/python3 /etc/freeradius/scripts/http_server/web_server.py
+autorestart=true
+stdout_logfile=/dev/fd/1
+stdout_logfile_maxbytes=0
+redirect_stderr=true
