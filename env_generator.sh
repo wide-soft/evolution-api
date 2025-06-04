@@ -182,9 +182,9 @@ fi
 create_env_file "$ENV_FILE_PATH" "$SECRET_JSON"
 echo "$FILE_NAME | Environment variables have been set in $ENV_FILE_PATH"
 
-read WIDEMANAGER_API_KEY < <(get_widemanager_api_key "$secret_json")
-read AUTHENTICATION_API_KEY < <(get_authentication_api_key "$secret_json")
-read EVOLUTION_API_URL < <(get_evolution_url "$secret_json")
+read WIDEMANAGER_API_KEY < <(get_widemanager_api_key "$SECRET_JSON")
+read AUTHENTICATION_API_KEY < <(get_authentication_api_key "$SECRET_JSON")
+read EVOLUTION_API_URL < <(get_evolution_url "$SECRET_JSON")
 WIDEMANAGER_API_PAYLOAD="{\"url\": \"https://$EVOLUTION_API_URL\",\"api_key\": \"$AUTHENTICATION_API_KEY\"}"
 
 echo "$FILE_NAME | DEBUG | $WIDEMANAGER_API_PAYLOAD"
