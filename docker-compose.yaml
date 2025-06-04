@@ -1,7 +1,18 @@
+version: '2.2'
+
 services:
   api:
     container_name: evolution_api
-    image: atendai/evolution-api:homolog
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+      args:
+        DATABASE_PROVIDER_ARG: postgresql
+        BOXSET_ARG: local
+        APPSET_ARG: widemanager
+        REGION_ARG: us-east-1
+        SERVICE_ARG: evolution-whatsapp-widemanager-local
+        AWS_SECRET_ARN_ARG: arn:aws:secretsmanager:us-east-1:735460172067:secret:dev/widemanager/evolution-Qb6Hz9
     restart: always
     depends_on:
       - redis
@@ -13,7 +24,7 @@ services:
     networks:
       - evolution-net
     env_file:
-      - .env
+      - .env.example
     expose:
       - 8080
 
@@ -52,7 +63,6 @@ volumes:
   evolution_instances:
   evolution_redis:
   postgres_data:
-
 
 networks:
   evolution-net:

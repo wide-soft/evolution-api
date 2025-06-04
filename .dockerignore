@@ -5,7 +5,6 @@ node_modules
 dist
 README.md
 buildspec.yml
-env_generator.sh
 local_install.sh
 README.md
 CHANGELOG.md

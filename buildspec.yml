@@ -12,8 +12,10 @@ phases:
     commands:
       - echo Starting build fase
       - echo Generating env file...
+      - rm -f .env.example
+      - cp .env.codebuild .env.example
       - bash env_generator.sh
-      - docker build . --build-arg DATABASE_PROVIDER_ARG=$DATABASE_PROVIDER --build-arg BOXSET_ARG=$BOXSET --build-arg APPSET_ARG=$APPSET --build-arg REGION_ARG=$REGION --build-arg SERVICE_ARG=$SERVICE -t $IMAGE_REPO_NAME
+      - docker build . --build-arg DATABASE_PROVIDER_ARG=$DATABASE_PROVIDER --build-arg BOXSET_ARG=$BOXSET --build-arg APPSET_ARG=$APPSET --build-arg REGION_ARG=$REGION --build-arg SERVICE_ARG=$SERVICE --build-arg AWS_SECRET_ARN_ARG=$AWS_SECRET_ARN -t $IMAGE_REPO_NAME
       - echo "Build completed on $(date)"
       - echo Moving to post build stage
   post_build:

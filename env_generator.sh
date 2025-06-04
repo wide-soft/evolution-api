@@ -3,11 +3,14 @@
 BASEDIR=$(dirname "$(realpath "$0")")
 
 # Set environment variables to be used on .env creation
+ENV_FILE_PATH="$BASEDIR/.env.example"
 SECRET_NAME="$AWS_SECRET_ARN"
 AWS_REGION="$REGION"
 SERVER_URL_DOMAIN="$EVOLUTION_SUBDOMAIN_NAME.$APPSET.$DOMAIN_SUFFIX"
+WIDEMANAGER_URL_DOMAIN="$APPSET.$DOMAIN_SUFFIX"
+WIDEMANAGER_API_PATH="/api/admin/wm/servicos/integracoes/whatsapp/modificar-credencial-evolution"
 SERVER_PORT="$SERVER_PORT"
-CORS_ORIGIN_URL="$APPSET.$DOMAIN_SUFFIX"
+# CORS_ORIGIN_URL="$APPSET.$DOMAIN_SUFFIX"
 
 get_credentials_from_secrets_manager() {
     local secret_json=$(aws secretsmanager get-secret-value --secret-id "$SECRET_NAME" --region "$AWS_REGION" --query SecretString --output text)
@@ -68,7 +71,6 @@ get_authentication_api_key() {
     local authentication_api_key=$(echo "$secret_json" | jq -r ".AUTHENTICATION_API_KEY")
 
     if [ "$authentication_api_key" == "null" ] || [ -z "$authentication_api_key" ]; then
-        # Generate a new API token
         local new_authentication_api_key=$(cat /dev/urandom | tr -dc 'A-F0-9' | fold -w 32 | head -n 1)
         merge_secret_with_new_data "$secret_json" "{\"AUTHENTICATION_API_KEY\":\"$new_authentication_api_key\"}"
         echo "$authentication_api_key"
@@ -95,7 +97,6 @@ create_env_file() {
     # Replace placeholders with actual values
     sed -i "s|env_server_port|$SERVER_PORT|g" "$temp_env_file"
     sed -i "s|env_server_url_domain|$SERVER_URL_DOMAIN|g" "$temp_env_file"
-    # sed -i "s|env_cors_origin_url|$CORS_ORIGIN_URL|g" "$temp_env_file"
     sed -i "s|env_db_user|$DB_USER|g" "$temp_env_file"
     sed -i "s|env_db_password|$DB_PASSWORD|g" "$temp_env_file"
     sed -i "s|env_db_host|$DB_HOST|g" "$temp_env_file"
@@ -128,6 +129,12 @@ create_env_file() {
     echo ".env file created successfully."
 }
 
+get_widemanager_api_key() {
+    local secret_json=$1
+    local widemanager_api_key=$(echo "$secret_json" | jq -r ".WIDEMANAGER_API_KEY")
+    echo "$widemanager_api_key"
+}
+
 # Main script logic
 if ! command -v aws &> /dev/null; then
     echo "AWS CLI could not be found. Please install it to proceed."
@@ -156,7 +163,6 @@ if ! echo "$SECRET_JSON" | jq empty; then
     exit 1
 fi
 # Create the .env file
-ENV_FILE_PATH="$BASEDIR/.env.example"
 if [ -z "$ENV_FILE_PATH" ]; then
     echo "ENV_FILE_PATH is not set. Please set it to proceed."
     exit 1
@@ -165,5 +171,17 @@ fi
 if [ -f "$ENV_FILE_PATH" ]; then
     echo "Warning: .env file already exists. It will be overwritten."
 fi
+
 create_env_file "$ENV_FILE_PATH" "$SECRET_JSON"
 echo "Environment variables have been set in $ENV_FILE_PATH"
+
+read WIDEMANAGER_API_KEY < <(get_widemanager_api_key "$secret_json")
+read AUTHENTICATION_API_KEY < <(get_authentication_api_key "$secret_json")
+WIDEMANAGER_PAYLOAD="{\"url\": \"https://$SERVER_URL_DOMAIN\",\"api_key\": \"$AUTHENTICATION_API_KEY\"}"
+python3 "$BASEDIR/supervisor/scripts/api_key.py" \
+        "$WIDEMANAGER_URL_DOMAIN" \
+        "$WIDEMANAGER_API_PATH" \
+        "$WIDEMANAGER_API_PAYLOAD" \
+        "$WIDEMANAGER_API_KEY"
+
+echo "Widemanager API key has been updated successfully."
