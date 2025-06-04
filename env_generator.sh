@@ -1,6 +1,7 @@
 #!/bin/bash
 
 BASEDIR=$(dirname "$(realpath "$0")")
+FILE_NAME=$(basename "$0" | cut -d'.' -f1)
 
 # Set environment variables to be used on .env creation
 ENV_FILE_PATH="$BASEDIR/.env.example"
@@ -16,7 +17,7 @@ get_credentials_from_secrets_manager() {
     local secret_json=$(aws secretsmanager get-secret-value --secret-id "$SECRET_NAME" --region "$AWS_REGION" --query SecretString --output text)
 
     if [ $? -ne 0 ]; then
-        echo "Failed to retrieve secret from AWS Secrets Manager."
+        echo "$FILE_NAME | Failed to retrieve secret from AWS Secrets Manager."
         exit 1
     fi
     echo "$secret_json"
@@ -29,7 +30,7 @@ merge_secret_with_new_data() {
 
     aws secretsmanager update-secret --secret-id "$SECRET_NAME" --region "$AWS_REGION" --secret-string "$merged_json"
     if [ $? -ne 0 ]; then
-        echo "Failed to update secret in AWS Secrets Manager."
+        echo "$FILE_NAME | Failed to update secret in AWS Secrets Manager."
         exit 1
     fi
 }
@@ -84,7 +85,7 @@ create_env_file() {
     local secret_json=$2
 
     # Create the .env file with the required variables
-    echo "Creating .env file at $env_file_path..."
+    echo "$FILE_NAME | Creating .env file at $env_file_path..."
     read DB_USER DB_PASSWORD DB_HOST DB_PORT DB_NAME < <(get_rds_credentials "$secret_json")
     read REDIS_HOST REDIS_PORT REDIS_DB REDIS_TTL < <(get_redis_credentials "$secret_json")
     read S3_ACCESS_KEY S3_SECRET_KEY S3_BUCKET_NAME S3_PORT S3_ENDPOINT S3_REGION < <(get_s3_credentials "$secret_json")
@@ -118,15 +119,15 @@ create_env_file() {
     mv "$temp_env_file" "$env_file_path"
     # Check if the .env file is readable
     if [ ! -r "$env_file_path" ]; then
-        echo "The .env file is not readable."
+        echo "$FILE_NAME | .env file is not readable."
         exit 1
     fi
     # Check if the .env file is empty
     if [ ! -s "$env_file_path" ]; then
-        echo "The .env file is empty."
+        echo "$FILE_NAME | .env file is empty."
         exit 1
     fi
-    echo ".env file created successfully."
+    echo "$FILE_NAME | .env file created successfully."
 }
 
 get_widemanager_api_key() {
@@ -137,51 +138,55 @@ get_widemanager_api_key() {
 
 # Main script logic
 if ! command -v aws &> /dev/null; then
-    echo "AWS CLI could not be found. Please install it to proceed."
+    echo "$FILE_NAME | aws-cli could not be found. Please install it to proceed."
     exit 1
 fi
 
 if ! command -v jq &> /dev/null; then
-    echo "jq could not be found. Please install it to proceed."
+    echo "$FILE_NAME | jq could not be found. Please install it to proceed."
     exit 1
 fi
 
 if [ -z "$AWS_REGION" ]; then
-    echo "AWS_REGION is not set. Please set it to proceed."
+    echo "$FILE_NAME | AWS_REGION is not set. Please set it to proceed."
     exit 1
 fi
 
 # Retrieve secret (make sure AWS CLI output isn't inadvertently printed)
 SECRET_JSON=$(aws secretsmanager get-secret-value --secret-id "$SECRET_NAME" --region "$AWS_REGION" --query SecretString --output text)
 if [ $? -ne 0 ]; then
-    echo "Failed to retrieve secret from AWS Secrets Manager."
+    echo "$FILE_NAME | Failed to retrieve secret from AWS Secrets Manager."
     exit 1
 fi
 # Check if the secret JSON is valid
 if ! echo "$SECRET_JSON" | jq empty; then
-    echo "Invalid JSON format in the secret."
+    echo "$FILE_NAME | Invalid JSON format in the secret."
     exit 1
 fi
 # Create the .env file
 if [ -z "$ENV_FILE_PATH" ]; then
-    echo "ENV_FILE_PATH is not set. Please set it to proceed."
+    echo "$FILE_NAME | ENV_FILE_PATH is not set. Please set it to proceed."
     exit 1
 fi
 # Check if the file already exists and prompt for confirmation
 if [ -f "$ENV_FILE_PATH" ]; then
-    echo "Warning: .env file already exists. It will be overwritten."
+    echo "$FILE_NAME | Warning: .env file already exists. It will be overwritten."
 fi
 
 create_env_file "$ENV_FILE_PATH" "$SECRET_JSON"
-echo "Environment variables have been set in $ENV_FILE_PATH"
+echo "$FILE_NAME | Environment variables have been set in $ENV_FILE_PATH"
 
 read WIDEMANAGER_API_KEY < <(get_widemanager_api_key "$secret_json")
 read AUTHENTICATION_API_KEY < <(get_authentication_api_key "$secret_json")
-WIDEMANAGER_PAYLOAD="{\"url\": \"https://$SERVER_URL_DOMAIN\",\"api_key\": \"$AUTHENTICATION_API_KEY\"}"
+WIDEMANAGER_API_PAYLOAD="{\"url\": \"https://$EVOLUTION_API_URL\",\"api_key\": \"$AUTHENTICATION_API_KEY\"}"
 python3 "$BASEDIR/supervisor/scripts/api_key.py" \
         "$WIDEMANAGER_URL_DOMAIN" \
         "$WIDEMANAGER_API_PATH" \
         "$WIDEMANAGER_API_PAYLOAD" \
         "$WIDEMANAGER_API_KEY"
-
-echo "Widemanager API key has been updated successfully."
+if [ $? -ne 0 ]; then
+    echo "$FILE_NAME | Failed to set API key to Widemanager API."
+    exit 1
+else
+    echo "$FILE_NAME | API key set to Widemanager API successfully."
+fi
