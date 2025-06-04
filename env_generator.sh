@@ -136,6 +136,12 @@ get_widemanager_api_key() {
     echo "$widemanager_api_key"
 }
 
+get_evolution_url() {
+    local secret_json=$1
+    local evolution_url=$(echo "$secret_json" | jq -r ".EVOLUTION_API_URL")
+    echo "$evolution_url"
+}
+
 # Main script logic
 if ! command -v aws &> /dev/null; then
     echo "$FILE_NAME | aws-cli could not be found. Please install it to proceed."
@@ -178,6 +184,7 @@ echo "$FILE_NAME | Environment variables have been set in $ENV_FILE_PATH"
 
 read WIDEMANAGER_API_KEY < <(get_widemanager_api_key "$secret_json")
 read AUTHENTICATION_API_KEY < <(get_authentication_api_key "$secret_json")
+read EVOLUTION_API_URL < <(get_evolution_url "$secret_json")
 WIDEMANAGER_API_PAYLOAD="{\"url\": \"https://$EVOLUTION_API_URL\",\"api_key\": \"$AUTHENTICATION_API_KEY\"}"
 python3 "$BASEDIR/supervisor/scripts/api_key.py" \
         "$WIDEMANAGER_URL_DOMAIN" \
