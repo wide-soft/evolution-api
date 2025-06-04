@@ -186,6 +186,9 @@ read WIDEMANAGER_API_KEY < <(get_widemanager_api_key "$secret_json")
 read AUTHENTICATION_API_KEY < <(get_authentication_api_key "$secret_json")
 read EVOLUTION_API_URL < <(get_evolution_url "$secret_json")
 WIDEMANAGER_API_PAYLOAD="{\"url\": \"https://$EVOLUTION_API_URL\",\"api_key\": \"$AUTHENTICATION_API_KEY\"}"
+
+echo "$FILE_NAME | DEBUG | $WIDEMANAGER_API_PAYLOAD"
+
 python3 "$BASEDIR/supervisor/scripts/api_key.py" \
         "$WIDEMANAGER_URL_DOMAIN" \
         "$WIDEMANAGER_API_PATH" \
