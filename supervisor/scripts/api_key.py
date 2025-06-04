@@ -47,7 +47,7 @@ def main():
     decoded_resp = resp.decode() if resp else "No response"
     try:
         if status != 200:
-            print(f"api_key | Error: {decoded_resp.get('erro', 'Unknown error')}")
+            print(f"api_key | Error: {json.loads(decoded_resp).get('erro', 'Unknown error')}")
             sys.exit(1)
         else:
             print(f"api_key | Status: {status}, Response: {resp.decode()}")
