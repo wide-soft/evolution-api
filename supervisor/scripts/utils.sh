@@ -31,7 +31,7 @@ log () {
     _prefix="$(hostname -s) $_script: $_level -"
     _file="/tmp/${_script}.log"
 
-    echo -e "$_prefix $_msg" |tee -a $_file
+    echo -e "$_datetime $_prefix $_msg" |tee -a $_file
 }
 
 #------------------------------------------------------------------------------

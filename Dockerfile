@@ -65,7 +65,7 @@ ENV SERVICE=${SERVICE_ARG}
 ENV AWS_SECRET_ARN=${AWS_SECRET_ARN_ARG}
 
 RUN apk update && \
-    apk add tzdata ffmpeg bash openssl supervisor cronie jq unzip curl aws-cli iproute2
+    apk add tzdata ffmpeg bash openssl supervisor jq unzip curl aws-cli iproute2 vim
 
 ENV TZ=America/Sao_Paulo
 RUN ln -sf /usr/share/zoneinfo/America/Sao_Paulo /etc/localtime
@@ -73,12 +73,7 @@ RUN ln -sf /usr/share/zoneinfo/America/Sao_Paulo /etc/localtime
 RUN mkdir -p /etc/supervisor/conf.d
 COPY supervisor/supervisord.conf /etc/supervisor/supervisord.conf
 
-COPY supervisor/conf.d/cronie.conf /etc/supervisor/conf.d/cronie.conf
-COPY supervisor/etc/crontabs/root /etc/crontabs/root
-
-RUN chown root:root /etc/crontabs/root
-RUN chmod 600 /etc/crontabs/root
-
+COPY supervisor/conf.d/run.conf /etc/supervisor/conf.d/run.conf
 COPY supervisor/conf.d/evolution-api.conf /etc/supervisor/conf.d/evolution-api.conf
 
 RUN chmod 0644 /etc/supervisor/conf.d/*
@@ -102,6 +97,10 @@ COPY supervisor/scripts/api_key.py ./api_key.py
 COPY supervisor/scripts/credentials_updater.sh ./credentials_updater.sh
 COPY supervisor/scripts/run.sh ./run.sh
 COPY supervisor/scripts/utils.sh ./utils.sh
+
+RUN chmod +x ./credentials_updater.sh && \
+    chmod +x ./run.sh && \
+    chmod +x ./utils.sh
 
 EXPOSE 8080
 
