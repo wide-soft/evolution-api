@@ -73,7 +73,7 @@ RUN ln -sf /usr/share/zoneinfo/America/Sao_Paulo /etc/localtime
 RUN mkdir -p /etc/supervisor/conf.d
 COPY supervisor/supervisord.conf /etc/supervisor/supervisord.conf
 
-COPY supervisor/conf.d/run.conf /etc/supervisor/conf.d/run.conf
+# COPY supervisor/conf.d/run.conf /etc/supervisor/conf.d/run.conf
 COPY supervisor/conf.d/evolution-api.conf /etc/supervisor/conf.d/evolution-api.conf
 
 RUN chmod 0644 /etc/supervisor/conf.d/*

@@ -215,11 +215,3 @@ fi
 
 loginfo "Credentials check completed successfully."
 loginfo "Script completed successfully."
-
-# Melhorias:
-# - Adicionar logs para facilitar o debug
-# Fragmentar o script:
-    # Um que irá criar o .secret.json
-        # Lẽ o secret para .secret.json.tmp, compara com o .secret.json e se estiver diferença irá ser movido para .secret.json
-        # Executa o segundo script
-    # Um que irá alterar o .env e dar reload na aplicação
