@@ -1,3 +1,53 @@
+# 2.3.1 (develop)
+
+### Feature
+
+* Add BaileysMessageProcessor for improved message handling and integrate rxjs for asynchronous processing
+* Enhance message processing with retry logic for error handling
+
+### Fixed
+
+* Update Baileys Version
+* Update Dockerhub Repository and Delete Config Session Variable
+* Fixed sending variables in typebot
+* Add unreadMessages in the response
+* Phone number as message ID for Evo AI
+* Fix upload to s3 when media message
+* Simplify edited message check in BaileysStartupService
+* Avoid corrupting URLs with query strings
+* Removed CONFIG_SESSION_PHONE_VERSION environment variable
+
+# 2.3.0 (2025-06-17 09:19)
+
+### Feature
+
+* Add support to get Catalogs and Collections with new routes: '{{baseUrl}}/chat/fetchCatalogs' and '{{baseUrl}}/chat/fetchCollections'
+* Add NATS integration support to the event system
+* Add message location support meta
+* Add S3_SKIP_POLICY env variable to disable setBucketPolicy for incompatible providers
+* Add EvoAI integration with models, services, and routes
+* Add N8n integration with models, services, and routes
+
+### Fixed
+
+* Shell injection vulnerability
+* Update Baileys Version v6.7.18
+* Audio send duplicate from chatwoot
+* Chatwoot csat creating new conversation in another language
+* Refactor SQS controller to correct bug in sqs events by instance
+* Adjustin cloud api send audio and video
+* Preserve animation in GIF and WebP stickers
+* Preventing use conversation from other inbox for the same user
+* Ensure full WhatsApp compatibility for audio conversion (libopus, 48kHz, mono)
+* Enhance message fetching and processing logic
+* Added lid on whatsapp numbers router
+* Now if the CONFIG_SESSION_PHONE_VERSION variable is not filled in it automatically searches for the most updated version
+
+### Security
+
+* Change execSync to execFileSync
+* Enhance WebSocket authentication and connection handling
+
 # 2.2.3 (2025-02-03 11:52)
 
 ### Fixed
