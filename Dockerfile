@@ -1,9 +1,25 @@
 FROM node:20-alpine AS builder
 
+ARG DATABASE_PROVIDER_ARG=local
+ARG BOXSET_ARG=local
+ARG APPSET_ARG=widesoft
+ARG REGION_ARG=us-east-1
+ARG SERVICE_ARG=evolution-whatsapp-widesoft-local
+ARG AWS_SECRET_ARN_ARG=local
+
+ENV DOCKER_ENV=true
+ENV DATABASE_PROVIDER=${DATABASE_PROVIDER_ARG}
+ENV BOXSET=${BOXSET_ARG}
+ENV APPSET=${APPSET_ARG}
+ENV REGION=${REGION_ARG}
+ENV AWS_REGION=${REGION_ARG}
+ENV SERVICE=${SERVICE_ARG}
+ENV AWS_SECRET_ARN=${AWS_SECRET_ARN_ARG}
+
 RUN apk update && \
     apk add git ffmpeg wget curl bash openssl
 
-LABEL version="2.2.3" description="Api to control whatsapp features through http requests." 
+LABEL version="2.2.3" description="Api to control whatsapp features through http requests."
 LABEL maintainer="Davidson Gomes" git="https://github.com/DavidsonGomes"
 LABEL contact="contato@atendai.com"
 
@@ -31,10 +47,36 @@ RUN npm run build
 
 FROM node:20-alpine AS final
 
+ARG DATABASE_PROVIDER_ARG=local
+ARG BOXSET_ARG=local
+ARG APPSET_ARG=widesoft
+ARG REGION_ARG=us-east-1
+ARG SERVICE_ARG=evolution-whatsapp-widesoft-local
+ARG AWS_SECRET_ARN_ARG=local
+
+ENV PYTHONWARNINGS="ignore::UserWarning"
+ENV DOCKER_ENV=true
+ENV DATABASE_PROVIDER=${DATABASE_PROVIDER_ARG}
+ENV BOXSET=${BOXSET_ARG}
+ENV APPSET=${APPSET_ARG}
+ENV REGION=${REGION_ARG}
+ENV AWS_REGION=${REGION_ARG}
+ENV SERVICE=${SERVICE_ARG}
+ENV AWS_SECRET_ARN=${AWS_SECRET_ARN_ARG}
+
 RUN apk update && \
-    apk add tzdata ffmpeg bash openssl
+    apk add tzdata ffmpeg bash openssl supervisor jq unzip curl aws-cli iproute2 vim htop
 
 ENV TZ=America/Sao_Paulo
+RUN ln -sf /usr/share/zoneinfo/America/Sao_Paulo /etc/localtime
+
+RUN mkdir -p /etc/supervisor/conf.d
+COPY supervisor/supervisord.conf /etc/supervisor/supervisord.conf
+
+COPY supervisor/conf.d/run.conf /etc/supervisor/conf.d/run.conf
+COPY supervisor/conf.d/evolution-api.conf /etc/supervisor/conf.d/evolution-api.conf
+
+RUN chmod 0644 /etc/supervisor/conf.d/*
 
 WORKDIR /evolution
 
@@ -51,8 +93,17 @@ COPY --from=builder /evolution/Docker ./Docker
 COPY --from=builder /evolution/runWithProvider.js ./runWithProvider.js
 COPY --from=builder /evolution/tsup.config.ts ./tsup.config.ts
 
-ENV DOCKER_ENV=true
+COPY supervisor/scripts/api_key.py ./api_key.py
+COPY supervisor/scripts/credentials_updater.sh ./credentials_updater.sh
+COPY supervisor/scripts/run.sh ./run.sh
+COPY supervisor/scripts/utils.sh ./utils.sh
+
+RUN chmod +x ./credentials_updater.sh && \
+    chmod +x ./run.sh && \
+    chmod +x ./utils.sh
 
 EXPOSE 8080
 
-ENTRYPOINT ["/bin/bash", "-c", ". ./Docker/scripts/deploy_database.sh && npm run start:prod" ]
+# ENTRYPOINT ["/bin/bash", "-c", ". ./Docker/scripts/deploy_database.sh && npm run start:prod" ]
+
+CMD ["supervisord", "-c", "/etc/supervisor/supervisord.conf"]
