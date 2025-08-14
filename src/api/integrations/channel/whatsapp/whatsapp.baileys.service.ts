@@ -2393,7 +2393,7 @@ export class BaileysStartupService extends ChannelStartupService {
         throw new BadRequestException('Font is required');
       }
 
-      return {https://github.com/wide-soft/evolution-api/pull/3
+      return {
         content: { text: status.content },
         option: { backgroundColor: status.backgroundColor, font: status.font, statusJidList: status.statusJidList },
       };
