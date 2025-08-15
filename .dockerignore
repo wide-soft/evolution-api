@@ -4,3 +4,8 @@
 .env
 node_modules
 dist
+README.md
+buildspec.yml
+local_install.sh
+README.md
+CHANGELOG.md
