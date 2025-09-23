@@ -1,4 +1,4 @@
-FROM node:20-alpine AS builder
+FROM node:24-alpine AS builder
 
 ARG DATABASE_PROVIDER_ARG=local
 ARG BOXSET_ARG=local
@@ -46,7 +46,7 @@ RUN ./Docker/scripts/generate_database.sh
 
 RUN npm run build
 
-FROM node:20-alpine AS final
+FROM node:24-alpine AS final
 
 ARG DATABASE_PROVIDER_ARG=local
 ARG BOXSET_ARG=local
